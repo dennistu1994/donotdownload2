@@ -8,10 +8,11 @@ class Event{
     EventType event_type;
     int value;
 
-    Event(double time, EventType event_type, int value){
-      this->time = time;
+    Event(double time, EventType event_type, int value, bool error){
       this->event_type = event_type;
+	  this->time = time;
       this->value = value;
+	  this->error = error;
     };
 
     bool operator<(const Event& other) const {

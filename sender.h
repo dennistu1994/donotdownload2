@@ -1,4 +1,4 @@
-
+#pragma once
 class Sender {
     public:
         int SN=0;
