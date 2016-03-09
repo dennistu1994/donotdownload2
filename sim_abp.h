@@ -43,7 +43,9 @@ class SIM_ABP {
 
         void start(){
             this->send();
-            this->process_next_event();
+			while(this->current_success < this->num_success){
+				this->process_next_event();
+			}
         };
 
         void send(){
