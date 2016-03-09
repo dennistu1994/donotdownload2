@@ -20,7 +20,7 @@ class SIM_ABP {
         int current_success;
         Event* timeout;
         EventList* events;
-		RNG rng;
+        RNG* rng;
 
         SIM_ABP(double to, int header_length, int packet_length, int link_rate, int num_success, double propagation_delay, double bit_error_rate){
             this->to = to;
@@ -28,7 +28,7 @@ class SIM_ABP {
             this->packet_length = packet_length;
             this->link_rate = link_rate;
             this->num_success = num_success;            
-			this->propatation_delay = propagation_delay;
+			this->propagation_delay = propagation_delay;
 			this->bit_error_rate = bit_error_rate;
 			
             this->tc = 0.0;
@@ -37,6 +37,7 @@ class SIM_ABP {
             this->receiver = new Receiver();            
 
             this->current_success = 0;
+            this->timeout = new Event(2*to, TIMEOUT, 0, false);
             this->events = new EventList();
 			this->rng = new RNG();
         };
@@ -54,13 +55,14 @@ class SIM_ABP {
 
         void process_next_event(){
             Event* event = this->timeout;
-            if(this->events->get_head_time() < next->time){
-                event = this->events->pop_head();
+            if(this->events->get_head_time() < event->time){
+                event = this->events->pop_head()->event;
             }
             
             this->tc = event->time;
-
-            switch(event->type){
+            int num_errors;
+            cout<<(*event)<<endl<<flush;
+            switch(event->event_type){
                 case TIMEOUT:
 					this->send();
                     break;
@@ -72,7 +74,7 @@ class SIM_ABP {
                     break;
                 case DATA_DEPARTURE:
 					//determine if frame gets through channel error free
-					int num_errors = 0;
+					num_errors = 0;
 					for(int i = 0;i<(this->packet_length + this->header_length);i++){
 						if(this->rng->get_next() < this->bit_error_rate){
 							num_errors += 1;
@@ -93,7 +95,7 @@ class SIM_ABP {
 					this->events->put_and_sort(new Event(this->tc + (this->header_length/(double)this->link_rate), ACK_DEPARTURE, this->receiver->NEXT_EXPECTED_FRAME, false));
                     break;
                 case ACK_DEPARTURE:
-					int num_errors = 0;
+					num_errors = 0;
 					for(int i = 0;i<this->header_length;i++){
 						if(this->rng->get_next() < this->bit_error_rate){
 							num_errors += 1;
@@ -108,11 +110,12 @@ class SIM_ABP {
 					}
                     break;
                 case ACK_ARRIVAL:
-					if(event->value == this->sender->NEXT_EXPECTED_ACK && !event.error){
+					if(event->value == this->sender->NEXT_EXPECTED_ACK && !event->error){
 						//empty buffer, increment SN and NEXT_EXPECTED_ACK
-						this->sender->SN = 1-this->SN;
+						this->sender->SN = 1-this->sender->SN;
 						this->sender->NEXT_EXPECTED_ACK = 1 - this->sender->NEXT_EXPECTED_ACK;
 						this->current_success += 1;
+            cout<<this->current_success<<endl<<flush;
 						if(this->current_success < this->num_success){
 							this->send();
 						}
@@ -122,4 +125,4 @@ class SIM_ABP {
                     break;
             }
         };
-}
+};

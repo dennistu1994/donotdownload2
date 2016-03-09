@@ -1,5 +1,6 @@
 #pragma once
-
+#include <iostream>
+#include <limits>
 using namespace std;
 enum EventType {TIMEOUT, SEND_DATA, DATA_DEPARTURE, DATA_ARRIVAL, ACK_DEPARTURE, ACK_ARRIVAL};
 class Event{
@@ -7,6 +8,7 @@ class Event{
     double time;
     EventType event_type;
     int value;
+    bool error;
 
     Event(double time, EventType event_type, int value, bool error){
       this->event_type = event_type;
@@ -142,17 +144,26 @@ class EventList{
 
 std::ostream & operator<<(std::ostream & Str, const Event& event) {
   switch (event.event_type){
-    case Arrival:
-      Str << 'A';
+    case TIMEOUT:
+      Str << "TIMEOUT";
       break;
-    case Departure:
-      Str << 'D';
+    case SEND_DATA:
+      Str << "SEND_DATA";
       break;
-    case Observer:
-      Str << 'O';
+    case DATA_DEPARTURE:
+      Str << "DATA_DEPARTURE";
+      break;
+    case DATA_ARRIVAL:
+      Str << "DATA_ARRIVAL";
+      break;
+    case ACK_DEPARTURE:
+      Str << "ACK_DEPARTURE";
+      break;
+    case ACK_ARRIVAL:
+      Str << "ACK_ARRIVAL";
       break;
     default:
-      Str << 'X';
+      Str << "UNKNOWN";
   }
   Str<<'('<<event.time<<')';
 }

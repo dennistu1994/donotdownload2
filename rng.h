@@ -9,7 +9,7 @@ class RNG{
 			this->distribution = new uniform_real_distribution<double>(0.0, 1.0);
 		};
 	
-		RNG(default_random_engine generator, uniform_real_distribution<double> distribution){
+		RNG(default_random_engine* generator, uniform_real_distribution<double>* distribution){
 			this->generator = generator;
 			this->distribution = distribution;
 		};
@@ -19,13 +19,12 @@ class RNG{
 		};
 		
 		double get_next(){
-			return this->distribution(this->generator);
+			return (*this->distribution)(*(this->generator));
 		}
 	
 	private:
-		default_random_engine generator;
-		uniform_real_distribution<double> distribution;
-}
-
+		default_random_engine* generator;
+		uniform_real_distribution<double>* distribution;
+};
 
 
