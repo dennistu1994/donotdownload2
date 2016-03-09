@@ -29,7 +29,6 @@ class SIM_ABP {
             this->receiver = new Receiver();            
 
             this->current_success = 0;
-            this->timeout = new Event(0.0, TIMEOUT, 0);
             this->events = new EventList(); 
         };
 
@@ -39,8 +38,8 @@ class SIM_ABP {
         };
 
         void send(){
-            Event* event = new Event(tc, SEND, this->sender->SN);
-            this->timeout->time = tc + (packet_length / (double)link_rate) + to;
+            Event* event = new Event(this->tc, SEND_DATA, this->sender->SN);
+            this->events->put(event);
         };
 
         void process_next_event(){
@@ -48,13 +47,23 @@ class SIM_ABP {
             if(this->events->get_head_time() < next->time){
                 next = this->events->pop_head();
             }
+            
+            this->tc = next->time;
 
             switch(next->type){
                 case TIMEOUT:
                     break;
-                case SEND:
+                case SEND_DATA:
+                    //schedule DATA_DEPARTURE
+                    this->events->put(new Event(tc + (this->packet_length/(double)this->link_rate)));
                     break;
-                case ACK:
+                case DATA_DEPARTURE:
+                    break;
+                case DATA_ARRIVAL:
+                    break;
+                case ACK_DEPARTURE:
+                    break;
+                case ACK_ARRIVAL:
                     break;
             }
         };
