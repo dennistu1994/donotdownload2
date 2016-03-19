@@ -3,7 +3,7 @@
 #include "sender.h"
 #include "receiver.h"
 #include "rng.h"
-class SIM_ABP {
+class SIM_ABP_NAK {
     public:
     double to;
     int header_length;
@@ -22,7 +22,7 @@ class SIM_ABP {
     EventList* events;
     RNG* rng;
 
-    SIM_ABP(double to, int header_length, int packet_length, int link_rate, int num_success, double propagation_delay, double bit_error_rate){
+    SIM_ABP_NAK(double to, int header_length, int packet_length, int link_rate, int num_success, double propagation_delay, double bit_error_rate){
         this->to = to;
         this->header_length = header_length;
         this->packet_length = packet_length;
@@ -122,6 +122,7 @@ class SIM_ABP {
                     this->send();
                 }
                 } else {
+                  this->send();
                 //error, wait for time out
             }
             break;

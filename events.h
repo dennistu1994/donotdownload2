@@ -11,14 +11,24 @@ class Event{
     bool error;
 
     Event(double time, EventType event_type, int value, bool error){
-      this->event_type = event_type;
-	  this->time = time;
-      this->value = value;
-	  this->error = error;
+        this->event_type = event_type;
+        this->time = time;
+        this->value = value;
+        this->error = error;
     };
 
     bool operator<(const Event& other) const {
-      return (this->time < other.time);
+        if(this->time == other.time){
+            if(other.event_type == DATA_DEPARTURE){
+              return false;
+            } else if(other.event_type == SEND_DATA){
+              return this->event_type == ACK_ARRIVAL;
+            } else {
+              return true;
+            }
+        } else {
+          return (this->time < other.time);
+        }
     };
 
     friend std::ostream& operator<<(std::ostream & Str, const Event& event);
@@ -165,7 +175,7 @@ std::ostream & operator<<(std::ostream & Str, const Event& event) {
     default:
       Str << "UNKNOWN";
   }
-  Str<<'('<<event.time<<')';
+  Str<<'('<<event.value<<')'<<'('<<event.time<<')';
 }
 
 std::ostream & operator<<(std::ostream & Str, const EventList& list) {
